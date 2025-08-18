@@ -61,13 +61,13 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="min-h-screen bg-[#343541] text-gray-100">
       {/* Header */}
-      <header className="h-14 border-b bg-white">
+      <header className="h-14 border-b border-gray-700 bg-[#202123]">
         <div className="mx-auto max-w-5xl h-full px-4 flex items-center justify-between">
           <h1 className="text-sm font-medium">Bati — Agent Chat</h1>
           <a
-            className="text-xs underline decoration-dashed hover:text-gray-700"
+            className="text-xs underline decoration-dashed hover:text-gray-300"
             href="https://nextjs.org/learn/react-foundations"
             target="_blank"
           >
@@ -77,8 +77,8 @@ export default function App() {
       </header>
 
       {/* Chat area */}
-      <main className="mx-auto max-w-5xl px-4 py-4 grid grid-rows-[1fr,auto] gap-3 h-[calc(100vh-3.5rem)]">
-        <div className="overflow-auto rounded-xl border bg-white">
+      <main className="mx-auto max-w-5xl px-4 py-4 flex flex-col gap-3 h-[calc(100vh-3.5rem)]">
+        <div className="flex-1 overflow-auto rounded-xl border border-gray-700 bg-[#343541]">
           <ul className="p-4 space-y-3">
             {messages.map((m) => (
               <ChatBubble key={m.id} role={m.role} text={m.text} />
@@ -88,16 +88,17 @@ export default function App() {
         </div>
 
         {/* Composer */}
-        <form onSubmit={handleSend} className="flex gap-2">
-          <input
+        <form onSubmit={handleSend} className="flex gap-2 shrink-0">
+          <textarea
+            rows={2}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder='Try: "Generate 8 Smudge mage posters, IG + TikTok"'
-            className="flex-1 rounded-xl border bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-gray-300"
+            placeholder='Try: "Type your message here"'
+            className="flex-1 resize-none rounded-xl border bg-[#40414f] border-gray-700 text-gray-100 px-3 py-2 outline-none focus:ring-2 focus:ring-[#2f4540] h-20 max-h-24 overflow-auto leading-normal"
           />
           <button
             type="submit"
-            className="rounded-xl bg-gray-900 text-white px-4 py-2 hover:bg-black"
+            className="self-end rounded-xl bg-[#2b333b] text-white px-4 py-2 hover:bg-[#2f4540] h-fit"
           >
             Send
           </button>
@@ -119,8 +120,10 @@ function ChatBubble({ role, text }: { role: Role; text: string }) {
     <li className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
         className={[
-          "rounded-2xl px-4 py-2 max-w-[75%] whitespace-pre-wrap leading-relaxed",
-          isUser ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900",
+          "rounded-2xl px-4 py-2 max-w-[75%] whitespace-pre-wrap break-words leading-relaxed",
+          isUser
+            ? "bg-[#2b333b] text-white"
+            : "bg-[#444654] text-gray-100",
         ].join(" ")}
       >
         {text}

@@ -56,8 +56,39 @@ export default function App() {
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
 
-    // Simulate agent thinking + replying
-    mockAgentReply(text, setMessages);
+    sendToBackend(text, setMessages);
+  }
+
+  async function sendToBackend(
+    text: string,
+    setMessages: (updater: (prev: Message[]) => Message[]) => void
+  ) {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/chat/turn", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      const agentMsg: Message = {
+        id: crypto.randomUUID(),
+        role: "agent",
+        text: data.reply,
+        createdAt: Date.now(),
+      };
+      setMessages((prev) => [...prev, agentMsg]);
+    } catch (err: any) {
+      const errorMsg: Message = {
+        id: crypto.randomUUID(),
+        role: "agent",
+        text: `⚠️ Error: ${err.message || err}`,
+        createdAt: Date.now(),
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    }
   }
 
   return (
@@ -71,7 +102,7 @@ export default function App() {
             href="https://nextjs.org/learn/react-foundations"
             target="_blank"
           >
-            React Foundations
+            Right side poop example
           </a>
         </div>
       </header>
@@ -130,48 +161,4 @@ function ChatBubble({ role, text }: { role: Role; text: string }) {
       </div>
     </li>
   );
-}
-
-/**
- * mockAgentReply
- * --------------
- * For learning and UI work, this simulates an agent.
- * It returns:
- *  - A quick acknowledgement
- *  - If the text looks like a generation request, a short plan
- * Replace this with your real API call later.
- */
-function mockAgentReply(text: string, setMessages: (updater: (prev: Message[]) => Message[]) => void) {
-  const acknowledgement = `Got it: "${text}". I can create a batch job or answer questions.`;
-  const planLines: string[] = [];
-
-  // Very naive "intent" detection—just to make the demo feel alive.
-  const looksLikeBatch =
-    /generate|make|create/i.test(text) &&
-    /(image|poster|promo|batch|gallery|variant|ig|tiktok|facebook)/i.test(text);
-
-  if (looksLikeBatch) {
-    planLines.push(
-      "Plan:",
-      "• Seeds: detect from context or ask you to upload",
-      "• Sizes: 1080×1080 (IG), 1080×1920 (TikTok)",
-      "• Count: 8",
-      "• Overlay: headline + optional quote",
-      "Say “create batch” to enqueue a mock job (we’ll wire the backend next)."
-    );
-  }
-
-  const reply = [acknowledgement, ...(planLines.length ? ["", ...planLines] : [])].join("\n");
-
-  const agentMsg: Message = {
-    id: crypto.randomUUID(),
-    role: "agent",
-    text: reply,
-    createdAt: Date.now(),
-  };
-
-  // Simulate delay
-  setTimeout(() => {
-    setMessages((prev) => [...prev, agentMsg]);
-  }, 400);
 }
